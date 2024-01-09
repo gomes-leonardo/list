@@ -56,23 +56,22 @@ export const Line = styled.div`
 `
 export const ListItem = styled.div`
   width: 100%;
+  min-height: 50px;
   margin: 10px auto;
   background-color: #262626;
   padding: 12px;
   border-radius: 8px;
   color: #f2f2f2;
-  display: flex;
   font-size: 14px;
 `
 
 export const IconContainer = styled.div`
   display: flex;
-  gap: 10px;
+  justify-content: start;
   align-items: center;
-  justify-content: space-between;
-  justify-items: center;
+
   svg {
-    width: 50px;
+    width: 40px;
     cursor: pointer;
   }
 `

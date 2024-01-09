@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from 'react'
 import Input from '../../atoms/Input'
 import AddButton from '../../atoms/Button'
-import { v4 as uuidv4 } from 'uuid'
+
 import {
   Container,
   IconContainer,
@@ -13,14 +13,19 @@ import {
 } from './style'
 import Table from '../Table'
 import { CheckIcon, CheckIconDone, TrashIcon } from '../../atoms/SvgIcons'
+import Empty from '../EmptyList'
 
 const TodoList = () => {
-  const [isComplete, setIsComplete] = useState(false)
   const [task, setTask] = useState<string>('')
   const [tasks, setTasks] = useState<string[]>([])
+  const [completedTasks, setCompletedTasks] = useState<boolean[]>([])
 
-  const handleComplete = () => {
-    setIsComplete(!isComplete)
+  const handleComplete = (index: number) => {
+    setCompletedTasks((prevCompletedTasks) => {
+      const newCompletedTasks = [...prevCompletedTasks]
+      newCompletedTasks[index] = !newCompletedTasks[index]
+      return newCompletedTasks
+    })
   }
 
   const handleChange = (value: string) => {
@@ -30,11 +35,17 @@ const TodoList = () => {
   const handleAddTask = () => {
     if (task.trim() !== '') {
       setTasks((prevTasks) => [...prevTasks, task])
+      setCompletedTasks((prevCompletedTasks) => [...prevCompletedTasks, false])
       setTask('')
-      console.log('Tarefa adicionada:', task)
     }
   }
-  console.log(tasks)
+
+  const handleDeleteTask = (index: number) => {
+    setTasks((prevTasks) => prevTasks.filter((_, i) => i !== index))
+    setCompletedTasks((prevCompletedTasks) =>
+      prevCompletedTasks.filter((_, i) => i !== index),
+    )
+  }
   return (
     <div>
       <Container>
@@ -51,42 +62,58 @@ const TodoList = () => {
         <TableContainer>
           <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
             Tarefas criadas{' '}
-            <NumberStyle style={{ color: 'white' }}>0</NumberStyle>
+            <NumberStyle style={{ color: 'white' }}>{tasks.length}</NumberStyle>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
             Concluídas{' '}
-            <NumberStyle style={{ color: 'white' }}>2 de 5</NumberStyle>
+            <NumberStyle style={{ color: 'white' }}>
+              {completedTasks.filter(Boolean).length} de {completedTasks.length}
+            </NumberStyle>
           </div>
         </TableContainer>
         <Line></Line>
-        {tasks.map((task, index) => (
-          <ListItem key={index}>
-            <IconContainer>
-              <button
-                onClick={handleComplete}
-                style={{
-                  border: 'none',
-                  backgroundColor: 'unset',
-                  padding: '0',
-                  marginBottom: '3%',
-                }}
-              >
-                {isComplete ? <CheckIconDone /> : <CheckIcon />}
-              </button>
-              <div>{task}</div>
-              <button
-                style={{
-                  border: 'none',
-                  backgroundColor: 'unset',
-                  padding: '0',
-                  marginBottom: '3%',
-                }}
-              >
-                <TrashIcon />
-              </button>
-            </IconContainer>
-          </ListItem>
-        ))}
+
+        {tasks.length === 0 ? (
+          <Empty />
+        ) : (
+          tasks.map((task, index) => (
+            <ListItem key={index}>
+              <IconContainer>
+                <button
+                  onClick={() => {
+                    handleComplete(index)
+                  }}
+                  style={{
+                    border: 'none',
+                    backgroundColor: 'unset',
+                    padding: '0',
+                    marginRight: 'auto',
+                  }}
+                >
+                  {completedTasks[index] ? <CheckIconDone /> : <CheckIcon />}
+                </button>
+                <div
+                  style={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}
+                >
+                  {completedTasks[index] ? <del>{task}</del> : <>{task}</>}{' '}
+                </div>
+                <button
+                  onClick={() => {
+                    handleDeleteTask(index)
+                  }}
+                  style={{
+                    border: 'none',
+                    backgroundColor: 'unset',
+                    padding: '0',
+                    marginLeft: 'auto',
+                  }}
+                >
+                  <TrashIcon />
+                </button>
+              </IconContainer>
+            </ListItem>
+          ))
+        )}
       </Table>
     </div>
   )
